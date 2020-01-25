@@ -86,10 +86,17 @@ class PeopleWithMoney(People):
         self.wealth = [random.randint(*WEALTH_RANGE) for x in range(NUM_NAMES)]
 
     def __iter__(self):
-        name_iter = super(PeopleWithMoney, self).__iter__()
-        for wealth in self.wealth:
-            name = next(name_iter)
+        for name, wealth in zip(
+                super(PeopleWithMoney, self).__iter__(), self.wealth):
             yield "{} {}".format(name, wealth)
+
+    def __call__(self):
+        names_with_wealth = [n.split() for n in self.__iter__()]
+        names_with_wealth_sorted = sorted(
+            names_with_wealth,
+            key=lambda name_with_wealth: int(name_with_wealth[-1]))
+        for name_wealth in names_with_wealth_sorted:
+            print(' '.join(name_wealth))
 
 
 def _test_name_order(pple):
@@ -111,11 +118,15 @@ def main():
     pple_w_money = PeopleWithMoney()
     for attr in ['first_names', 'middle_names', 'last_names']:
         setattr(pple, attr, _make_random_strings(NUM_NAMES, NAME_LENGTH))
-        setattr(pple_w_money, attr, _make_random_strings(NUM_NAMES, NAME_LENGTH))
+        setattr(pple_w_money, attr,
+                _make_random_strings(NUM_NAMES, NAME_LENGTH))
     _test_name_order(pple)
 
     for per in pple_w_money:
         print(per)
+    print('-'*50)
+    pple_w_money()
+
 
 if __name__ == "__main__":
     sys.exit(main())
