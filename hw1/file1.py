@@ -2,13 +2,12 @@
 import sys
 import random
 from string import ascii_letters
-import functools
-from collections.abc import Iterable
 
 # Fixed seed to init the RNG
 SEED = 0
 NUM_NAMES = 10
 NAME_LENGTH = 5
+WEALTH_RANGE = (0, 1000)
 
 random.seed(SEED)
 
@@ -48,6 +47,9 @@ class People:
             yield self._build_name(self.first_names[i], self.middle_names[i],
                                    self.last_names[i])
 
+    def __call__(self):
+        return sorted(self.last_names)
+
     def _validate_names(self):
         if not (len(self.first_names) == len(self.middle_names) == len(
                 self.last_names)):
@@ -77,32 +79,17 @@ class People:
         self.last_name_first = False
         self.last_name_with_comma_first = False
 
-    # @property
-    # def first_name_first(self):
-    #     return self.first_name_first
 
-    # @property
-    # def last_name_first(self):
-    #     return self.last_name_first
+class PeopleWithMoney(People):
+    def __init__(self):
+        super(PeopleWithMoney, self).__init__()
+        self.wealth = [random.randint(*WEALTH_RANGE) for x in range(NUM_NAMES)]
 
-    # @property
-    # def last_name_with_comma_first(self):
-    #     return self.last_name_with_comma_first
-
-    # @first_name_first.setter
-    # def first_name_first(self, name):
-    #     self._reset_order_flags()
-    #     self.first_name_first = name
-
-    # @last_name_first.setter
-    # def last_name_first(self, name):
-    #     self._reset_order_flags()
-    #     self.first_name_first = name
-
-    # @last_name_with_comma_first.setter
-    # def last_name_first(self, name):
-    #     self._reset_order_flags()
-    #     self.last_name_with_comma_first = name
+    def __iter__(self):
+        name_iter = super(PeopleWithMoney, self).__iter__()
+        for wealth in self.wealth:
+            name = next(name_iter)
+            yield "{} {}".format(name, wealth)
 
 
 def _test_name_order(pple):
@@ -115,12 +102,20 @@ def _test_name_order(pple):
             print(person)
 
 
+def _test_callable_func(pple):
+    pass
+
+
 def main():
     pple = People()
+    pple_w_money = PeopleWithMoney()
     for attr in ['first_names', 'middle_names', 'last_names']:
         setattr(pple, attr, _make_random_strings(NUM_NAMES, NAME_LENGTH))
+        setattr(pple_w_money, attr, _make_random_strings(NUM_NAMES, NAME_LENGTH))
     _test_name_order(pple)
 
+    for per in pple_w_money:
+        print(per)
 
 if __name__ == "__main__":
     sys.exit(main())
