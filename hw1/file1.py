@@ -77,38 +77,39 @@ class People:
         self.last_name_first = False
         self.last_name_with_comma_first = False
 
-    @property
-    def first_name_first(self):
-        return self.first_name_first
+    # @property
+    # def first_name_first(self):
+    #     return self.first_name_first
 
-    @property
-    def last_name_first(self):
-        return self.last_name_first
+    # @property
+    # def last_name_first(self):
+    #     return self.last_name_first
 
-    @property
-    def last_name_with_comma_first(self):
-        return self.last_name_with_comma_first
+    # @property
+    # def last_name_with_comma_first(self):
+    #     return self.last_name_with_comma_first
 
-    @first_name_first.setter
-    def first_name_first(self, name):
-        self._reset_order_flags()
-        self.first_name_first = name
+    # @first_name_first.setter
+    # def first_name_first(self, name):
+    #     self._reset_order_flags()
+    #     self.first_name_first = name
 
-    @last_name_first.setter
-    def last_name_first(self, name):
-        self._reset_order_flags()
-        self.first_name_first = name
+    # @last_name_first.setter
+    # def last_name_first(self, name):
+    #     self._reset_order_flags()
+    #     self.first_name_first = name
 
-    @last_name_with_comma_first.setter
-    def last_name_first(self, name):
-        self._reset_order_flags()
-        self.last_name_with_comma_first = name
+    # @last_name_with_comma_first.setter
+    # def last_name_first(self, name):
+    #     self._reset_order_flags()
+    #     self.last_name_with_comma_first = name
 
 
 def _test_name_order(pple):
     for attr in [
             'last_name_with_comma_first', 'last_name_first', 'first_name_first'
     ]:
+        pple._reset_order_flags()
         setattr(pple, attr, True)
         for person in pple:
             print(person)
