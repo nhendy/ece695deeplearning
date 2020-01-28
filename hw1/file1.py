@@ -48,7 +48,8 @@ class People:
                                    self.last_names[i])
 
     def __call__(self):
-        return sorted(self.last_names)
+        for name in sorted(self.last_names):
+            print(name)
 
     def _validate_names(self):
         if not (len(self.first_names) == len(self.middle_names) == len(
@@ -110,7 +111,7 @@ def _test_name_order(pple):
 
 
 def _test_callable_func(pple):
-    pass
+    pple()
 
 
 def main():
@@ -121,11 +122,10 @@ def main():
         setattr(pple_w_money, attr,
                 _make_random_strings(NUM_NAMES, NAME_LENGTH))
     _test_name_order(pple)
-
+    _test_callable_func(pple)
     for per in pple_w_money:
         print(per)
-    print('-'*50)
-    pple_w_money()
+    _test_callable_func(pple_w_money)
 
 
 if __name__ == "__main__":
