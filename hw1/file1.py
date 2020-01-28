@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import random
-from string import ascii_letters
+from string import ascii_lowercase
 
 # Fixed seed to init the RNG
 SEED = 0
@@ -13,9 +13,7 @@ random.seed(SEED)
 
 
 def _make_random_string(length):
-    rand_char = lambda: ascii_letters[random.randint(0, length - 1) % len(
-        ascii_letters)]
-    return ''.join([rand_char() for i in range(length)])
+    return ''.join([random.choice(ascii_lowercase) for i in range(length)])
 
 
 def _make_random_strings(num_strings, length):
@@ -102,7 +100,7 @@ class PeopleWithMoney(People):
 
 def _test_name_order(pple):
     for attr in [
-            'last_name_with_comma_first', 'last_name_first', 'first_name_first'
+            'first_name_first', 'last_name_first', 'last_name_with_comma_first'
     ]:
         pple._reset_order_flags()
         setattr(pple, attr, True)
