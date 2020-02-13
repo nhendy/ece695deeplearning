@@ -87,58 +87,6 @@ class FilterSampler(torch.utils.data.Sampler):
         return self._classes_to_sample
 
 
-class StepTracker():
-    def __init__(self):
-        self._train_step = 0
-        self._valid_step = 0
-
-    def update(self, mode):
-        if mode == 'train':
-            self._train_step += 1
-        else:
-            self._valid_step += 1
-
-    def step(self, mode):
-        return self._train_step if mode == 'train' else self._valid_step
-
-    def total_steps(self):
-        return self._train_step + self._valid_step
-
-
-def _make_dir_with_permissions(path):
-    if not os.path.exists(path):
-        os.makedirs(path, mode=0o777, exist_ok=True)
-
-
-def _make_writers(modes):
-    writers = {}
-    for mode in _modes():
-        path = '{}/{}'.format(LOGS_DIR, mode)
-        _make_dir_with_permissions(path)
-        writers[mode] = SummaryWriter(log_dir=path, flush_secs=30)
-    return writers
-
-
-def _visualize_in_tensorboard(loaders):
-    writers = _make_writers(list(loaders.keys()))
-    step_tracker = StepTracker()
-    for mode in loaders.keys():
-        for imgs, target in loaders[mode]:
-            writer = writers[mode]
-            grid = torchvision.utils.make_grid(tensor=imgs, nrow=2)
-            import ipdb
-            ipdb.set_trace()
-            writer.add_image(tag='gt/{}'.format(mode),
-                             img_tensor=grid,
-                             global_step=step_tracker.step(mode),
-                             dataformats='CHW')
-            step_tracker.update(mode)
-            if step_tracker.total_steps() == 100:
-                print("Done. visualize via:\n tensorboard --log_dir={}".format(
-                    LOGS_DIR))
-                return
-
-
 def _to_one_hot(tensor, total_num_classes):
     zeros_one_hot_shaped_tensor = tensor.new_zeros(size=(tensor.size(0),
                                                          total_num_classes))
