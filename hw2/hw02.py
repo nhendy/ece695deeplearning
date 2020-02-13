@@ -1,7 +1,6 @@
 try:
     import torchvision
     import torch
-    from torch.utils.tensorboard import SummaryWriter
 except ModuleNotFoundError as e:
     print("Failed to import torchvision and torch")
     raise
@@ -9,14 +8,16 @@ except ModuleNotFoundError as e:
 import sys
 import os
 import time
+import matplotlib.pyplot as plt
+import numpy as np
 
-DATASET_ROOT_DIR = os.path.expanduser("~/.data")
+DATASET_ROOT_DIR = os.path.expanduser("./data")
 LOGS_DIR = os.path.expanduser('/tmp/.logs/{}'.format(
     time.strftime('%m%d%y:%H%M')))
 TRAIN_BATCH = 5
 VALIDATION_BATCH = 5
 CLASSES_TO_SAMPLE = ['cat', 'dog']
-# NOTE: PyTorch is channels last. Given CIFAR10 order
+# NOTE: PyTorch is channels first. Given CIFAR10 order
 CHAN_FIRST_ORDER = {
     'N': 0,
     'H': 2,
@@ -26,6 +27,12 @@ CHAN_FIRST_ORDER = {
 
 NORMALIZATION_MEAN = [0.5, 0.5, 0.5]
 NORMALIZATION_STD = [0.5, 0.5, 0.5]
+PATH_OUTPUT_PLOT = os.path.expanduser('~/.logs/plots')
+DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+torch.manual_seed(99999)
+
+if not os.path.exists(PATH_OUTPUT_PLOT):
+    os.makedirs(PATH_OUTPUT_PLOT)
 
 
 def _batch(mode):
@@ -163,21 +170,52 @@ def one_hot_encode_and_filter_cifar_labels(dataset, new_classes):
     return transform
 
 
-def train_two_layer_network(loaders, new_classes):
+def forward(x, state_dict):
+    x = x.view(x.size(0), -1)
+    # layer 1
+    z1 = x.mm(state_dict['w1'])
+    a1 = z1.clamp(min=0)
+    # layer 2
+    z2 = a1.mm(state_dict['w2'])
+    a2 = z2.clamp(min=0)
+    # output layer
+    z3 = a2.mm(state_dict['w3'])
+    return z3
+
+
+def test_and_compute_accuracy(state_dict, new_classes, loaders):
+    running_true_positives_sum = 0
+    running_total_samples = 0
+    labels_postprocesser = one_hot_encode_and_filter_cifar_labels(
+        loaders['validation'].dataset, new_classes)
+    for batch_idx, (x, y) in enumerate(loaders['validation']):
+        x = x.to(DEVICE)
+        y = labels_postprocesser(y).to(DEVICE)
+        predictions = torch.argmax(forward(x, state_dict), dim=1)
+        labels = torch.argmax(y, dim=1)
+        running_true_positives_sum += (labels == predictions).float().sum()
+        running_total_samples += x.size(0)
+
+    accuracy = (running_true_positives_sum / running_total_samples) * 100
+    print('Test Accuracy : {:.5f}'.format(accuracy))
+
+
+def train_two_layer_network(loaders, new_classes, output_plot_path):
     D_in, H1, H2, D_out = 3 * 32 * 32, 1000, 256, 2
     dtype = torch.float
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    w1 = torch.randn(D_in, H1, device=device, dtype=dtype)
-    w2 = torch.randn(H1, H2, device=device, dtype=dtype)
-    w3 = torch.randn(H2, D_out, device=device, dtype=dtype)
-    LEARNING_RATE = 1e-5
+    w1 = torch.randn(D_in, H1, device=DEVICE, dtype=dtype)
+    w2 = torch.randn(H1, H2, device=DEVICE, dtype=dtype)
+    w3 = torch.randn(H2, D_out, device=DEVICE, dtype=dtype)
+    LEARNING_RATE = 1e-8
+    EPOCHS = 50
     labels_postprocesser = one_hot_encode_and_filter_cifar_labels(
         loaders['train'].dataset, new_classes)
-    for t in range(2500):
+    losses_per_epoch = []
+    for epoch in range(EPOCHS):
         for i, data in enumerate(loaders['train']):
             inputs, labels = data
-            x = inputs.to(device)
-            y = labels_postprocesser(labels).to(device)
+            x = inputs.to(DEVICE)
+            y = labels_postprocesser(labels).to(DEVICE)
             # [N, 3072]
             x = x.view(x.size(0), -1)
             # [N, 1000]
@@ -188,29 +226,36 @@ def train_two_layer_network(loaders, new_classes):
             a2 = z2.clamp(min=0)
             # [N, 2]
             z3 = a2.mm(w3)
-            a3 = z3.clamp(min=0)
-
-            import ipdb
-            ipdb.set_trace()
             # [N, 2]
-            loss = .5 * (a3 - y).pow(2).mean().item()
-            if (i % 100) == 99:
-                import ipdb
-                ipdb.set_trace()
-                print("L2 loss at iter {}: {}".format(i, loss))
-            da3 = a3 - y
-            dz3 = da3 * (z3 > 0).float()
+            loss = (z3 - y).pow(2).sum().item()
+
+            # Backprop
+            dz3 = 2 * (z3 - y)
             dw3 = a2.t().mm(dz3)
 
-            dz2 = dz3.mm(w3.t()) * (z2 > 0).float()
+            dz2 = 2 * dz3.mm(w3.t()) * (z2 > 0).float()
             dw2 = a1.t().mm(dz2)
 
-            dz1 = dz2.mm(w2.t()) * (z1 > 0).float()
+            dz1 = 2 * dz2.mm(w2.t()) * (z1 > 0).float()
             dw1 = x.t().mm(dz1)
 
             w1 -= LEARNING_RATE * dw1
             w2 -= LEARNING_RATE * dw2
             w3 -= LEARNING_RATE * dw3
+        print("Epoch {}: {:.5f}".format(epoch, loss))
+        losses_per_epoch.append(loss)
+
+    print()
+    plt.scatter(np.arange(len(losses_per_epoch)), losses_per_epoch)
+    plt.xticks(np.arange(0, len(losses_per_epoch), 5.0))
+    plt.ylabel('L2 Loss')
+    plt.xlabel('Epoch')
+    plt.grid()
+    plt.savefig(
+        os.path.join(output_plot_path,
+                     '{}.png'.format(time.strftime('%m%d%y:%H%M'))))
+
+    return {'w1': w1, 'w2': w2, 'w3': w3}
 
 
 def main():
@@ -226,8 +271,9 @@ def main():
                                                     sampler=sampler,
                                                     drop_last=True)
 
-    # _visualize_in_tensorboard(loaders)
-    train_two_layer_network(loaders, CLASSES_TO_SAMPLE)
+    state_dict = train_two_layer_network(loaders, CLASSES_TO_SAMPLE,
+                                         PATH_OUTPUT_PLOT)
+    test_and_compute_accuracy(state_dict, CLASSES_TO_SAMPLE, loaders)
 
 
 if __name__ == "__main__":

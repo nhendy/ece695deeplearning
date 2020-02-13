@@ -1,0 +1,54 @@
+Files already downloaded and verified
+Files already downloaded and verified
+Epoch 0: 101637.35938
+Epoch 1: 19832.65234
+Epoch 2: 9680.77344
+Epoch 3: 6373.29834
+Epoch 4: 4695.43896
+Epoch 5: 3572.16748
+Epoch 6: 2837.98901
+Epoch 7: 2319.31787
+Epoch 8: 1925.27832
+Epoch 9: 1602.36694
+Epoch 10: 1355.25171
+Epoch 11: 1160.47510
+Epoch 12: 1003.81879
+Epoch 13: 876.05774
+Epoch 14: 770.41852
+Epoch 15: 681.66833
+Epoch 16: 607.30902
+Epoch 17: 545.06067
+Epoch 18: 487.07245
+Epoch 19: 436.44135
+Epoch 20: 393.07715
+Epoch 21: 356.10086
+Epoch 22: 324.54791
+Epoch 23: 296.93616
+Epoch 24: 272.57370
+Epoch 25: 251.42014
+Epoch 26: 232.68047
+Epoch 27: 215.94707
+Epoch 28: 201.05809
+Epoch 29: 187.47098
+Epoch 30: 174.92722
+Epoch 31: 163.41037
+Epoch 32: 152.76534
+Epoch 33: 143.04491
+Epoch 34: 134.01268
+Epoch 35: 125.64989
+Epoch 36: 117.96794
+Epoch 37: 110.92994
+Epoch 38: 104.42870
+Epoch 39: 98.42025
+Epoch 40: 92.89497
+Epoch 41: 87.78284
+Epoch 42: 83.01232
+Epoch 43: 78.58704
+Epoch 44: 74.43051
+Epoch 45: 70.51279
+Epoch 46: 66.76797
+Epoch 47: 63.24066
+Epoch 48: 59.91267
+Epoch 49: 56.80371
+
+Test Accuracy : 51.05000
