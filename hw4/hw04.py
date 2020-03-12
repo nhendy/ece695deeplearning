@@ -4,7 +4,7 @@
 
 # All residual blocks variants are named `ResyBlockV*` (I called it Resy because it's res like :D)
 #
-# The ouput.txt are results of ResyBlockV3
+# The ouput.txt are results of ResyBlockV2
 
 # I mainly experimented with the projection and the fusion.
 # Projection:
@@ -306,7 +306,7 @@ def main(argv):
                                                     batch_size=_batch(mode),
                                                     drop_last=True)
 
-    net = ResyNet(resy_block=ResyBlockV3)
+    net = ResyNet(resy_block=ResyBlockV2)
     train(net, loaders)
     test(net, loaders)
 
