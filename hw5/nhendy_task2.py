@@ -38,12 +38,14 @@ class GaussianSmooth(object):
         #                      multichannel=True,
         #                      preserve_range=True,
         #                      sigma=self.sigma).astype('float32')
-        tensor['image'] = torch.from_numpy(
-            cv2.cvtColor(cv2.blur(img_np, (3, 3)),
-                         COLOR_BGR2GRAY).astype('float32')).float()
-        sobelx = cv2.Sobel(img_np, xorder=1, yorder=0, ksize=3)
-        sobely = cv2.Sobel(img_np, xorder=0, yorder=1, ksize=3)
-        tensor['image'] = tensor['image'].permute(2, 0, 1)
+        gray_img = cv2.cvtColor(cv2.blur(img_np, (3, 3)),
+                                cv2.COLOR_BGR2GRAY).astype('float32')
+        sobelx = cv2.Sobel(gray_img, cv2.CV_64F, 1, 0, ksize=3)
+        sobely = cv2.Sobel(gray_img, cv2.CV_64F, 0, 1, ksize=3)
+        features = torch.from_numpy(
+            np.stack([sobelx, sobely, gray_img], axis=2)).float()
+
+        tensor['image'] = features.permute(2, 0, 1)
         tensor['image'] = tensor['image'] / 255.0
         return tensor
 
