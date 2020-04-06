@@ -4,6 +4,8 @@ import torch
 import torchvision
 from torchvision import transforms
 from skimage.filters import gaussian
+from scipy.ndimage import median_filter
+import cv2
 from PIL import ImageFilter
 import torch.nn.functional as F
 import os
@@ -26,22 +28,23 @@ class GaussianSmooth(object):
         self.sigma = sigma
 
     def __call__(self, tensor):
-        # tensor['image'] = transforms.ToPILImage()(tensor['image'])
-        # img_pil = img_pil.filter(ImageFilter.GaussianBlur(radius=2))
-        # tensor['image'] = transforms.ToTensor()(img_pil)
-        # print(tensor['image'])
-        # import pickle
-        # pickle.dump({'tensor_b': tensor}, open("/tmp/stuff.pickle", "ab+"))
         img_np = np.transpose(tensor['image'].numpy(), axes=[1, 2, 0])
+        # tensor['image'] = torch.from_numpy(
+        #     gaussian(img_np,
+        #              multichannel=True,
+        #              preserve_range=True,
+        #              sigma=self.sigma).astype('float32')).float()
+        # img_gauss = gaussian(img_np,
+        #                      multichannel=True,
+        #                      preserve_range=True,
+        #                      sigma=self.sigma).astype('float32')
         tensor['image'] = torch.from_numpy(
-            gaussian(img_np,
-                     multichannel=True,
-                     preserve_range=True,
-                     sigma=self.sigma).astype('float32')).float()
+            cv2.cvtColor(cv2.blur(img_np, (3, 3)),
+                         COLOR_BGR2GRAY).astype('float32')).float()
+        sobelx = cv2.Sobel(img_np, xorder=1, yorder=0, ksize=3)
+        sobely = cv2.Sobel(img_np, xorder=0, yorder=1, ksize=3)
         tensor['image'] = tensor['image'].permute(2, 0, 1)
         tensor['image'] = tensor['image'] / 255.0
-        # pickle.dump({'tensor_a': tensor}, open("/tmp/stuff.pickle", "ab+"))
-        # # print(tensor['image'])
         return tensor
 
 
@@ -65,13 +68,13 @@ def main(argv):
     dataserver_train = DLStudio.DetectAndLocalize.PurdueShapes5Dataset(
         train_or_test='train',
         dl_studio=dls,
-        dataset_file="PurdueShapes5-10000-train-noise-20.gz",
-        transform=GaussianSmooth(sigma=.5))
+        dataset_file="PurdueShapes5-10000-train-noise-50.gz",
+        transform=GaussianSmooth(sigma=0.5))
 
     dataserver_test = DLStudio.DetectAndLocalize.PurdueShapes5Dataset(
         train_or_test='test',
         dl_studio=dls,
-        dataset_file="PurdueShapes5-1000-test-noise-20.gz",
+        dataset_file="PurdueShapes5-1000-test-noise-50.gz",
         transform=GaussianSmooth(sigma=.5))
 
     detector.dataserver_train = dataserver_train
