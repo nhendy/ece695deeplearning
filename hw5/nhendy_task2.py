@@ -10,6 +10,7 @@ from PIL import ImageFilter
 import torch.nn.functional as F
 import os
 import sys
+from torch.utils.tensorboard import SummaryWriter
 
 seed = 0
 random.seed(seed)
@@ -28,24 +29,11 @@ class GaussianSmooth(object):
         self.sigma = sigma
 
     def __call__(self, tensor):
-        img_np = np.transpose(tensor['image'].numpy(), axes=[1, 2, 0])
+        # img_np = np.transpose(tensor['image'].numpy(), axes=[1, 2, 0])
         # tensor['image'] = torch.from_numpy(
-        #     gaussian(img_np,
-        #              multichannel=True,
-        #              preserve_range=True,
-        #              sigma=self.sigma).astype('float32')).float()
-        # img_gauss = gaussian(img_np,
-        #                      multichannel=True,
-        #                      preserve_range=True,
-        #                      sigma=self.sigma).astype('float32')
-        gray_img = cv2.cvtColor(cv2.blur(img_np, (3, 3)),
-                                cv2.COLOR_BGR2GRAY).astype('float32')
-        sobelx = cv2.Sobel(gray_img, cv2.CV_64F, 1, 0, ksize=3)
-        sobely = cv2.Sobel(gray_img, cv2.CV_64F, 0, 1, ksize=3)
-        features = torch.from_numpy(
-            np.stack([sobelx, sobely, gray_img], axis=2)).float()
+        #     cv2.blur(img_np, ksize=(3, 3)).astype('float32')).float()
 
-        tensor['image'] = features.permute(2, 0, 1)
+        # tensor['image'] = tensor['image'].permute(2, 0, 1)
         tensor['image'] = tensor['image'] / 255.0
         return tensor
 
@@ -84,17 +72,17 @@ def main(argv):
 
     detector.load_PurdueShapes5_dataset(dataserver_train, dataserver_test)
 
-    model = detector.LOADnet2(skip_connections=True, depth=32)
+    model = detector.LOADnet2(skip_connections=True, depth=10)
 
     dls.show_network_summary(model)
 
     detector.run_code_for_training_with_CrossEntropy_and_MSE_Losses(model)
 
-    import pymsgbox
-    response = pymsgbox.confirm(
-        "Finished training.  Start testing on unseen data?")
-    if response == "OK":
-        detector.run_code_for_testing_detection_and_localization(model)
+    # import pymsgbox
+    # response = pymsgbox.confirm(
+    #     "Finished training.  Start testing on unseen data?")
+    # if response == "OK":
+    detector.run_code_for_testing_detection_and_localization(model)
 
 
 if __name__ == "__main__":
