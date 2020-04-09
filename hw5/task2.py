@@ -69,9 +69,9 @@ def evaluate(net, loader):
     accuracy = conf_matrix.diagonal().sum().item() / conf_matrix.sum().item()
     conf_matrix /= samples_per_class
     conf_matrix *= 100
-    print("Dataset80 Classification Accuracy: {:.3f}".format(accuracy * 100),
+    print("Dataset50 Classification Accuracy: {:.3f}".format(accuracy * 100),
           file=out_file)
-    print("Dataset80 Confusion Matrix:", file=out_file)
+    print("Dataset50 Confusion Matrix:", file=out_file)
     print_conf_matrix(class_names=sorted(loader.dataset.label_map,
                                          key=lambda item: item[1]),
                       matrix=conf_matrix.numpy().tolist(),
@@ -87,8 +87,8 @@ def main(argv):
         path_saved_model="./saved_model",
         momentum=0.9,
         learning_rate=1e-4,
-        epochs=1,
-        batch_size=1,
+        epochs=2,
+        batch_size=5,
         classes=('rectangle', 'triangle', 'disk', 'oval', 'star'),
         debug_train=1,
         debug_test=1,
@@ -100,19 +100,23 @@ def main(argv):
     dataserver_train = DLStudio.DetectAndLocalize.PurdueShapes5Dataset(
         train_or_test='train',
         dl_studio=dls,
-        dataset_file="PurdueShapes5-10000-train-noise-80.gz",
+        dataset_file="PurdueShapes5-10000-train-noise-50.gz",
         transform=GaussianSmooth(sigma=0.5))
 
     dataserver_test = DLStudio.DetectAndLocalize.PurdueShapes5Dataset(
         train_or_test='test',
         dl_studio=dls,
-        dataset_file="PurdueShapes5-1000-test-noise-80.gz",
+        dataset_file="PurdueShapes5-1000-test-noise-50.gz",
         transform=GaussianSmooth(sigma=.5))
 
     detector.dataserver_train = dataserver_train
     detector.dataserver_test = dataserver_test
 
     detector.load_PurdueShapes5_dataset(dataserver_train, dataserver_test)
+    detector.test_dataloader = torch.utils.data.DataLoader(dataserver_test,
+                                                           batch_size=1,
+                                                           shuffle=False,
+                                                           num_workers=4)
 
     model = detector.LOADnet2(skip_connections=True, depth=32)
 
