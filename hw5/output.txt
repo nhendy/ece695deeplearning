@@ -1,0 +1,55 @@
+Task 3:
+Noise Classification Accuracy: 100.000
+Noise Confusion Matrix:
+                   0        20        50        80
+         0   100.000     0.000     0.000     0.000
+        20     0.000   100.000     0.000     0.000
+        50     0.000     0.000   100.000     0.000
+        80     0.000     0.000     0.000   100.000
+
+Dataset0 Classification Accuracy: 93.900
+Dataset0 Confusion Matrix:
+           rectangle      disk  triangle      star      oval
+ rectangle    91.500     0.000     0.000     8.500     0.000
+      disk     0.000   100.000     0.000     0.000     0.000
+  triangle     1.000     5.500    86.500     6.000     1.000
+      star     8.000     0.000     0.000    92.000     0.000
+      oval     0.500     0.000     0.000     0.000    99.500
+
+Dataset20 Classification Accuracy: 84.600
+Dataset20 Confusion Matrix:
+           rectangle      disk  triangle      star      oval
+ rectangle    92.500     1.500     1.000     3.000     2.000
+      disk     1.500    98.500     0.000     0.000     0.000
+  triangle     2.500     6.500    86.000     3.500     1.500
+      star    51.500     0.000     0.000    48.500     0.000
+      oval     2.500     0.000     0.000     0.000    97.500
+
+Dataset50 Classification Accuracy: 81.800
+Dataset50 Confusion Matrix:
+           rectangle      disk  triangle      star      oval
+ rectangle    87.500     0.500     4.000     6.000     2.000
+      disk     0.000    97.500     2.500     0.000     0.000
+  triangle     3.000     2.000    94.500     0.500     0.000
+      star    61.500     1.500     2.500    34.500     0.000
+      oval     4.000     0.000     1.000     0.000    95.000
+
+Dataset80 Classification Accuracy: 76.400
+Dataset80 Confusion Matrix:
+           rectangle      disk  triangle      star      oval
+ rectangle    57.000     1.500     5.000    28.500     8.000
+      disk     1.500    97.500     0.500     0.000     0.500
+  triangle     7.500     5.500    78.000     1.000     8.000
+      star    36.500     1.500     2.500    56.500     3.000
+      oval     4.500     0.500     1.500     0.500    93.000
+
+Task 4:
+Dataset50 Classification Accuracy: 92.100
+Dataset50 Confusion Matrix:
+           rectangle      disk  triangle      star      oval
+ rectangle    74.500     0.000     2.500    22.000     1.000
+      disk     0.500    97.500     2.000     0.000     0.000
+  triangle     0.500     0.000    99.500     0.000     0.000
+      star     6.500     0.000     2.000    91.500     0.000
+      oval     0.500     0.000     1.500     0.500    97.500
+
