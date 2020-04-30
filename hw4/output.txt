@@ -1,0 +1,8 @@
+Files already downloaded and verified
+Files already downloaded and verified
+Epoch 0: 1.1888725021004676
+Epoch 1: 0.7026382626152039
+Epoch 2: 0.4745534795713425
+Epoch 3: 0.34516872082710265
+Epoch 4: 0.2636062667250633
+Classification Accuracy: 77.16
