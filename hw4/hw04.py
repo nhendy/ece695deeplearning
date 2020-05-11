@@ -52,8 +52,8 @@ DATASET_ROOT_DIR = os.path.expanduser("./data")
 NORMALIZATION_MEAN = [0.5, 0.5, 0.5]
 NORMALIZATION_STD = [0.5, 0.5, 0.5]
 EPOCHS = 5
-VALIDATION_BATCH = 5
 TRAIN_BATCH = 4
+VALIDATION_BATCH = 5
 
 torch.manual_seed(0)
 np.random.seed(0)
